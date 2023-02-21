@@ -11,6 +11,7 @@ public class NativeMessageQueue {
 
   private static final int DEFAULT_BIND_PORT = 5555;
   private static final int DEFAULT_QUEUE_LENGTH = 1000;
+  private static final int ZMQ_SEND_TIME_OUT = 1_000;
   private static NativeMessageQueue instance;
   private ZContext context = null;
   private ZMQ.Socket publisher = null;
@@ -33,7 +34,7 @@ public class NativeMessageQueue {
     if (Objects.isNull(publisher)) {
       return false;
     }
-
+    publisher.setSendTimeOut(ZMQ_SEND_TIME_OUT);
     if (bindPort == 0 || bindPort < 0) {
       bindPort = DEFAULT_BIND_PORT;
     }
@@ -64,8 +65,14 @@ public class NativeMessageQueue {
     }
 
     try {
-      publisher.sendMore(topic);
-      publisher.send(data);
+      boolean b1 = publisher.sendMore(topic);
+      if (!b1) {
+        logger.error("Send topic {} failed, error no:{}", topic, publisher.errno());
+      }
+      boolean b2 = publisher.send(data);
+      if (!b2) {
+        logger.error("Send data {} failed, error no:{}", data, publisher.errno());
+      }
     } catch (RuntimeException e) {
       logger.error("write data to zeromq failed, data:{}, topic:{}, error:{}", data, topic,
           e.getMessage());
