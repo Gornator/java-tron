@@ -11,7 +11,7 @@ public class NativeMessageQueue {
 
   private static final int DEFAULT_BIND_PORT = 5555;
   private static final int DEFAULT_QUEUE_LENGTH = 1000;
-  private static final int ZMQ_SEND_TIME_OUT = 1_000;
+  private static final int ZMQ_SEND_TIME_OUT = 1;
   private static NativeMessageQueue instance;
   private ZContext context = null;
   private ZMQ.Socket publisher = null;
