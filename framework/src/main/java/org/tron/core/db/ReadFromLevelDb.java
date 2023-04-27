@@ -30,12 +30,11 @@ public class ReadFromLevelDb {
     return item -> consumer.accept(counter.getAndIncrement(), item);
   }
 
-  public void freezeTransactionRet() {
+  public void freezeTable(String tableName) {
 
     logger.info("Start initDB ");
 
-    LevelDbDataSourceImpl dbSource = new LevelDbDataSourceImpl(dbDir,
-        "block");
+    LevelDbDataSourceImpl dbSource = new LevelDbDataSourceImpl(dbDir, tableName);
     dbSource.initDB();
 
     logger.info("Start fetch data " + dbDir);
@@ -44,7 +43,7 @@ public class ReadFromLevelDb {
     AtomicInteger fileSize = new AtomicInteger(0);
     Map<Integer, FileOutputStream> count2FileStream = new HashMap<>();
 
-    int batch = 30000;
+    int batch = 1;
     int i = 0;
 
     ByteArrayOutputStream batchData = new ByteArrayOutputStream();
@@ -52,16 +51,12 @@ public class ReadFromLevelDb {
     for (Entry<byte[], byte[]> v : dbSource) {
       i += 1;
       try {
-//        TransactionRetCapsule transactionRetCapsule = new TransactionRetCapsule(
-//            v.getValue());
-//        TransactionRet transactionRet = transactionRetCapsule.getInstance();
-//        long blockNum = transactionRet.getBlockNumber();
 
         //每个 file 只用打开一次
         fw = count2FileStream.get(fileCount.get());
         if (fw == null) {
           File file = new File(
-              String.format("ancient/block.%04d.cdat", fileCount.get()));
+              String.format("ancient/%s.%04d.cdat", tableName, fileCount.get()));
           logger.info(file.getAbsolutePath());
           if (!file.exists()) {
             file.createNewFile();
@@ -74,11 +69,11 @@ public class ReadFromLevelDb {
         if (i >= batch) {
           byte[] compressData = Snappy.compress(batchData.toByteArray());
           fw.write(compressData);
-          fw.flush();
           batchData.reset();
 
           fileSize.getAndAdd(compressData.length);
           if (fileSize.get() >= 200 * 1000 * 1000) {
+            fw.flush();
             fileCount.incrementAndGet();
             fileSize.set(0);
           }
@@ -86,7 +81,7 @@ public class ReadFromLevelDb {
         }
 
         if (i % 1000 == 0) {
-          logger.info("write block {}", i);
+          //logger.info("write block {}", i);
         }
 
       } catch (IOException e) {
@@ -109,6 +104,7 @@ public class ReadFromLevelDb {
 
     Args.setParam(args, "config-nile.conf");
     ReadFromLevelDb readFromLevelDb = new ReadFromLevelDb();
-    readFromLevelDb.freezeTransactionRet();
+    readFromLevelDb.freezeTable("block");
+
   }
 }
