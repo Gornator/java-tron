@@ -70,7 +70,7 @@ public class EthFreezer {
       byte[] compressData = out.toByteArray();
       out.close();
 
-      if (singleFileSize.get() + compressData.length >= 200 * 1000 * 1000) {
+      if (singleFileSize.get() + compressData.length >= 2 * 1000 * 1000 * 1000) {
         if (fw != null) {
           fw.flush();
           fw.close();

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.tron.common.utils.ByteUtil;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.exception.BadItemException;
@@ -103,10 +104,10 @@ public class BenchMarkFreezer {
 
     byte[] data = new byte[size];
     randomAccessFile.read(data, 0, size);
+    byte[] unCompressData = Snappy.uncompress(data);
 
-    BlockCapsule blockCapsule = new BlockCapsule(Snappy.uncompress(data));
-
-    //logger.info("expect block number:{}, real block number {}", blockNum, blockCapsule.getNum());
+    //BlockCapsule blockCapsule = new BlockCapsule(unCompressData);
+    //Assert.assertEquals(blockNum, blockCapsule.getNum());
   }
 
   public static void main(String[] args) throws IOException, BadItemException {
@@ -117,13 +118,16 @@ public class BenchMarkFreezer {
     //}
     Random random = new Random();
     int count = 0;
-    while (count < 100000) {
+    while (count < 1_000_000) {
       int offset = random.nextInt(
           (int) (benchMarkFreezer.maxBlockNum - benchMarkFreezer.minBlockNum));
       benchMarkFreezer.readBlockNum(benchMarkFreezer.minBlockNum + offset);
       count += 1;
+
+      if (count % 10000 == 0) {
+        long end = System.currentTimeMillis();
+        logger.info("read block count {}, cost {} ms", count, end - start);
+      }
     }
-    long end = System.currentTimeMillis();
-    logger.info("read block count {}, cost {} ms", count, end - start);
   }
 }
