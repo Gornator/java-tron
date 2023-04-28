@@ -1,5 +1,4 @@
-package org.tron.core.db;
-
+package org.tron.plugins.ethfreeze;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -9,18 +8,30 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.tron.common.utils.ByteUtil;
-import org.tron.core.capsule.BlockCapsule;
-import org.tron.core.exception.BadItemException;
 import org.xerial.snappy.Snappy;
+import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 @Slf4j(topic = "DB")
-public class BenchMarkFreezer {
+@CommandLine.Command(name = "benchfreezer",
+    description = "Benchmark freezer's delay of reading one block.")
+public class BenchFreezer implements Callable<Integer> {
 
-  public long minBlockNum = 50536001;
-  public long maxBlockNum = 50601536;
+  @Option(names = {"-m", "--min"},
+      description = "min block num")
+  public long minBlockNum;
+
+  @Option(names = {"-M", "--max"},
+      description = "max block num")
+  public long maxBlockNum;
+
+  @Option(names = {"-c", "--count"},
+      description = "test times")
+  public int testTimes;
+
   private Map<Integer, RandomAccessFile> index2Input = new HashMap<>();
   private byte[] cIdx;
 
@@ -39,7 +50,14 @@ public class BenchMarkFreezer {
     out.close();
   }
 
-  public BenchMarkFreezer() throws IOException {
+  public BenchFreezer() throws IOException {
+    readIndex();
+  }
+
+  public BenchFreezer(long minBlockNum, long maxBlockNum, int testTimes) throws IOException {
+    this.minBlockNum = minBlockNum;
+    this.maxBlockNum = maxBlockNum;
+    this.testTimes = testTimes;
     readIndex();
   }
 
@@ -57,7 +75,7 @@ public class BenchMarkFreezer {
     return new int[] {fileNum, offset};
   }
 
-  public void readBlockNum(long blockNum) throws IOException, BadItemException {
+  public byte[] readBlockNum(long blockNum) throws IOException {
     int start = (int) (blockNum - minBlockNum) * 6;
     int middle = (int) (blockNum - minBlockNum + 1) * 6;
 
@@ -108,20 +126,20 @@ public class BenchMarkFreezer {
 
     //BlockCapsule blockCapsule = new BlockCapsule(unCompressData);
     //Assert.assertEquals(blockNum, blockCapsule.getNum());
+    return unCompressData;
   }
 
-  public static void main(String[] args) throws IOException, BadItemException {
-    BenchMarkFreezer benchMarkFreezer = new BenchMarkFreezer();
+
+  public void bench() throws IOException {
     long start = System.currentTimeMillis();
     //for (long i = benchMarkFreezer.minBlockNum; i < benchMarkFreezer.maxBlockNum; i++) {
     //  benchMarkFreezer.readBlockNum(i);
     //}
     Random random = new Random();
     int count = 0;
-    while (count < 1_000_000) {
-      int offset = random.nextInt(
-          (int) (benchMarkFreezer.maxBlockNum - benchMarkFreezer.minBlockNum));
-      benchMarkFreezer.readBlockNum(benchMarkFreezer.minBlockNum + offset);
+    while (count < testTimes) {
+      int offset = random.nextInt((int) (maxBlockNum - minBlockNum));
+      readBlockNum(minBlockNum + offset);
       count += 1;
 
       if (count % 10000 == 0) {
@@ -129,5 +147,16 @@ public class BenchMarkFreezer {
         logger.info("read block count {}, cost {} ms", count, end - start);
       }
     }
+  }
+
+  @Override
+  public Integer call() throws Exception {
+    bench();
+    return 0;
+  }
+
+  public static void main(String[] args) throws IOException {
+    BenchFreezer benchMarkFreezer = new BenchFreezer(50536001, 50601536, 1_000_000);
+    benchMarkFreezer.bench();
   }
 }
