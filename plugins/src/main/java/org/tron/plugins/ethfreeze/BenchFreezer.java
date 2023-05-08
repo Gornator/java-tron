@@ -34,6 +34,7 @@ public class BenchFreezer implements Callable<Integer> {
 
   private Map<Integer, RandomAccessFile> index2Input = new HashMap<>();
   private byte[] cIdx;
+  private long unCompressCost = 0;
 
   private void readIndex() throws IOException {
     File indexFile = new File("ancient/block.cidx");
@@ -122,7 +123,10 @@ public class BenchFreezer implements Callable<Integer> {
 
     byte[] data = new byte[size];
     randomAccessFile.read(data, 0, size);
+
+    long t1 = System.currentTimeMillis();
     byte[] unCompressData = Snappy.uncompress(data);
+    unCompressCost += (System.currentTimeMillis() - t1);
 
     //BlockCapsule blockCapsule = new BlockCapsule(unCompressData);
     //Assert.assertEquals(blockNum, blockCapsule.getNum());
@@ -144,7 +148,8 @@ public class BenchFreezer implements Callable<Integer> {
 
       if (count % 10000 == 0) {
         long end = System.currentTimeMillis();
-        logger.info("read block count {}, cost {} ms", count, end - start);
+        logger.info("read block count {}, unCompress cost {} ms, cost {} ms",
+            count, unCompressCost, end - start);
       }
     }
   }
