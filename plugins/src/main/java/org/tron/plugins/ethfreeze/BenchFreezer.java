@@ -150,7 +150,7 @@ public class BenchFreezer implements Callable<Integer> {
       if (count % 10000 == 0) {
         long end = System.currentTimeMillis();
         logger.info("read block count {}, delta {} ms, unCompress cost {} ms, cost {} ms",
-            count, unCompressCost, end - lastTime, end - start);
+            count, end - lastTime, unCompressCost, end - start);
         lastTime = end;
       }
     }
