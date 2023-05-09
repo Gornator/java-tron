@@ -56,6 +56,7 @@ public class BenchLevelDb implements Callable<Integer> {
 
     Random random = new Random();
     int count = 0;
+    long lastTime = start;
     while (count < testTimes) {
       int blockNum = random.nextInt((int) (maxBlockNum - minBlockNum));
       byte[] blockBytes = ByteUtil.longTo32Bytes(blockNum);
@@ -72,7 +73,9 @@ public class BenchLevelDb implements Callable<Integer> {
 
       if (count % 10000 == 0) {
         long end = System.currentTimeMillis();
-        logger.info("read block count {}, cost {} ms", count, end - start);
+        logger.info("read block count {}, delta {} ms, cost {} ms", count, end - lastTime,
+            end - start);
+        lastTime = end;
       }
     }
   }

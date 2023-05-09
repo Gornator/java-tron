@@ -141,6 +141,7 @@ public class BenchFreezer implements Callable<Integer> {
     //}
     Random random = new Random();
     int count = 0;
+    long lastTime = start;
     while (count < testTimes) {
       int offset = random.nextInt((int) (maxBlockNum - minBlockNum));
       readBlockNum(minBlockNum + offset);
@@ -148,8 +149,9 @@ public class BenchFreezer implements Callable<Integer> {
 
       if (count % 10000 == 0) {
         long end = System.currentTimeMillis();
-        logger.info("read block count {}, unCompress cost {} ms, cost {} ms",
-            count, unCompressCost, end - start);
+        logger.info("read block count {}, delta {} ms, unCompress cost {} ms, cost {} ms",
+            count, unCompressCost, end - lastTime, end - start);
+        lastTime = end;
       }
     }
   }

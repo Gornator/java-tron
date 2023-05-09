@@ -26,7 +26,7 @@ import picocli.CommandLine;
 public class EthFreezer implements Callable<Integer> {
 
   String dbDir = "output-directory"; //jar包当前平级目录
-  int maxFileSize = 200 * 1000 * 1000;
+  int maxFileSize = 2 * 1000 * 1000 * 1000;
   long maxBlockNum = 0;
   long minBlockNum = Long.MAX_VALUE;
 
