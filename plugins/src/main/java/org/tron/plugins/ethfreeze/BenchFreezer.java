@@ -34,6 +34,10 @@ public class BenchFreezer implements Callable<Integer> {
 
   private Map<Integer, RandomAccessFile> index2Input = new HashMap<>();
   private byte[] cIdx;
+
+  private long readIndexCost = 0;
+  private long seekCost = 0;
+  private long readDataCost = 0;
   private long unCompressCost = 0;
 
   private void readIndex() throws IOException {
@@ -77,6 +81,7 @@ public class BenchFreezer implements Callable<Integer> {
   }
 
   public byte[] readBlockNum(long blockNum) throws IOException {
+    long t1 = System.currentTimeMillis();
     int start = (int) (blockNum - minBlockNum) * 6;
     int middle = (int) (blockNum - minBlockNum + 1) * 6;
 
@@ -114,19 +119,23 @@ public class BenchFreezer implements Callable<Integer> {
       randomAccessFile = new RandomAccessFile(dataFile, "r");
       index2Input.put(fileNum, randomAccessFile);
     }
+    readIndexCost += (System.currentTimeMillis() - t1);
 
+    long t2 = System.currentTimeMillis();
     randomAccessFile.seek(offset);
+    seekCost += (System.currentTimeMillis() - t2);
 
+    long t3 = System.currentTimeMillis();
     if (readToEnd) {
       size = (int) (randomAccessFile.length() - offset);
     }
-
     byte[] data = new byte[size];
     randomAccessFile.read(data, 0, size);
+    readDataCost += (System.currentTimeMillis() - t3);
 
-    long t1 = System.currentTimeMillis();
+    long t4 = System.currentTimeMillis();
     byte[] unCompressData = Snappy.uncompress(data);
-    unCompressCost += (System.currentTimeMillis() - t1);
+    unCompressCost += (System.currentTimeMillis() - t4);
 
     //try {
     //  BlockCapsule blockCapsule = new BlockCapsule(unCompressData);
@@ -156,8 +165,14 @@ public class BenchFreezer implements Callable<Integer> {
 
       if (count % 10000 == 0) {
         long end = System.currentTimeMillis();
-        logger.info("read block count {}, delta {} ms, unCompress cost {} ms, cost {} ms",
-            count, end - lastTime, unCompressCost, end - start);
+        logger.info("read block count {}, delta {} ms, readIndexCost {} ms, seekCost {} ms,"
+                + " readDataCost {} ms, unCompressCost {} ms, cost {} ms",
+            count, end - lastTime, readIndexCost, seekCost, readDataCost, unCompressCost,
+            end - start);
+        readIndexCost = 0;
+        seekCost = 0;
+        readDataCost = 0;
+        unCompressCost = 0;
         lastTime = end;
       }
     }
