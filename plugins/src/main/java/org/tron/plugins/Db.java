@@ -3,6 +3,7 @@ package org.tron.plugins;
 import org.tron.plugins.ethfreeze.BenchFreezer;
 import org.tron.plugins.ethfreeze.BenchLevelDb;
 import org.tron.plugins.ethfreeze.EthFreezer;
+import org.tron.plugins.ethfreeze.TronFreezer;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "db",
@@ -15,7 +16,7 @@ import picocli.CommandLine;
         DbConvert.class,
         DbLite.class,
         DbCopy.class,
-        EthFreezer.class,
+        TronFreezer.class,
         BenchFreezer.class,
         BenchLevelDb.class
     },

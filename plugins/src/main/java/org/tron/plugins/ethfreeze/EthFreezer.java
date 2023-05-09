@@ -19,10 +19,8 @@ import org.iq80.leveldb.DBIterator;
 import org.tron.common.utils.ByteUtil;
 import org.tron.plugins.utils.DBUtils;
 import org.xerial.snappy.Snappy;
-import picocli.CommandLine;
 
 @Slf4j(topic = "DB")
-@CommandLine.Command(name = "freezer", description = "Convert leveldb to ancient store.")
 public class EthFreezer implements Callable<Integer> {
 
   String dbDir = "output-directory"; //jar包当前平级目录

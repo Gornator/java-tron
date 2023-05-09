@@ -128,8 +128,15 @@ public class BenchFreezer implements Callable<Integer> {
     byte[] unCompressData = Snappy.uncompress(data);
     unCompressCost += (System.currentTimeMillis() - t1);
 
-    //BlockCapsule blockCapsule = new BlockCapsule(unCompressData);
-    //Assert.assertEquals(blockNum, blockCapsule.getNum());
+    //try {
+    //  BlockCapsule blockCapsule = new BlockCapsule(unCompressData);
+    //  if (blockCapsule.getNum() != blockNum) {
+    //    logger.error("Parse error, expect block {}, real block {}", blockNum,
+    //        blockCapsule.getNum());
+    //  }
+    //} catch (BadItemException e) {
+    //  throw new RuntimeException(e);
+    //}
     return unCompressData;
   }
 
