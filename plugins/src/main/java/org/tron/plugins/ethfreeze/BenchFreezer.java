@@ -130,7 +130,7 @@ public class BenchFreezer implements Callable<Integer> {
       size = (int) (randomAccessFile.length() - offset);
     }
     byte[] data = new byte[size];
-    randomAccessFile.read(data, 0, size);
+    randomAccessFile.readFully(data);
     readDataCost += (System.currentTimeMillis() - t3);
 
     long t4 = System.currentTimeMillis();
