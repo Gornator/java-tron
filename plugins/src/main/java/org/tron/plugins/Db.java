@@ -2,7 +2,7 @@ package org.tron.plugins;
 
 import org.tron.plugins.ethfreeze.BenchFreezer;
 import org.tron.plugins.ethfreeze.BenchLevelDb;
-import org.tron.plugins.ethfreeze.EthFreezer;
+import org.tron.plugins.ethfreeze.BenchMapFreezer;
 import org.tron.plugins.ethfreeze.TronFreezer;
 import picocli.CommandLine;
 
@@ -18,7 +18,8 @@ import picocli.CommandLine;
         DbCopy.class,
         TronFreezer.class,
         BenchFreezer.class,
-        BenchLevelDb.class
+        BenchLevelDb.class,
+        BenchMapFreezer.class
     },
     commandListHeading = "%nCommands:%n%nThe most commonly used db commands are:%n"
 )
