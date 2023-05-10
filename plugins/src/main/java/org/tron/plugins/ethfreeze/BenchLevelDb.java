@@ -87,7 +87,7 @@ public class BenchLevelDb implements Callable<Integer> {
   }
 
   public static void main(String[] args) throws IOException, BadItemException {
-    BenchLevelDb benchLevelDb = new BenchLevelDb(50536001, 50601536, 10_000_000);
+    BenchLevelDb benchLevelDb = new BenchLevelDb(50536001, 50601536, 1_000_000);
     benchLevelDb.bench();
   }
 }

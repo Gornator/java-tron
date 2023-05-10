@@ -134,6 +134,7 @@ public class BenchFreezer implements Callable<Integer> {
     readDataCost += (System.currentTimeMillis() - t3);
 
     long t4 = System.currentTimeMillis();
+    //byte[] unCompressData = data;
     byte[] unCompressData = Snappy.uncompress(data);
     unCompressCost += (System.currentTimeMillis() - t4);
 

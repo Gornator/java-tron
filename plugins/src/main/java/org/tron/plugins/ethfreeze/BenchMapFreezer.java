@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.ByteUtil;
+import org.xerial.snappy.Snappy;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
@@ -139,8 +140,8 @@ public class BenchMapFreezer implements Callable<Integer> {
     readDataCost += (System.currentTimeMillis() - t3);
 
     long t4 = System.currentTimeMillis();
-//    byte[] unCompressData = Snappy.uncompress(data);
-    byte[] unCompressData = data;
+    byte[] unCompressData = Snappy.uncompress(data);
+//    byte[] unCompressData = data;
     unCompressCost += (System.currentTimeMillis() - t4);
 
     //try {
@@ -191,7 +192,7 @@ public class BenchMapFreezer implements Callable<Integer> {
   }
 
   public static void main(String[] args) throws IOException {
-    BenchMapFreezer benchMarkFreezer = new BenchMapFreezer(50536001, 50601536, 10_000_000);
+    BenchMapFreezer benchMarkFreezer = new BenchMapFreezer(50536001, 50601536, 1_000_000);
     benchMarkFreezer.bench();
   }
 }
