@@ -141,7 +141,7 @@ public class BenchMapFreezer implements Callable<Integer> {
 
     long t4 = System.currentTimeMillis();
     byte[] unCompressData = Snappy.uncompress(data);
-//    byte[] unCompressData = data;
+    //byte[] unCompressData = data;
     unCompressCost += (System.currentTimeMillis() - t4);
 
     //try {

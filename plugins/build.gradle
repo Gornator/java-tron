@@ -38,6 +38,7 @@ dependencies {
     compile 'io.github.tronprotocol:leveldbjni-all:1.18.2'
     compile 'io.github.tronprotocol:leveldb:1.18.2'
     implementation group: 'org.xerial.snappy', name: 'snappy-java', version: '1.1.8.4'
+    compile group: 'org.zeromq', name: 'jeromq', version: '0.5.0'
     compile project(":protocol")
     compile project(":common")
     compile project(":chainbase")
