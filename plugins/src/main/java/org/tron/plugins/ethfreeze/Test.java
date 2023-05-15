@@ -26,6 +26,11 @@ public class Test implements Callable<Integer> {
         context.close();
       }).start();
     }
+    try {
+      Thread.sleep(10_000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
