@@ -13,15 +13,18 @@ import picocli.CommandLine;
 public class Test implements Callable<Integer> {
 
   public void testZmqSub() {
-    ZContext context = new ZContext();
-    ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
-    subscriber.connect(String.format("tcp://localhost:%d", 50096));
-    subscriber.subscribe("blockTrigger");
-
-    while (!Thread.currentThread().isInterrupted()) {
-      byte[] message = subscriber.recv();
-      String triggerMsg = new String(message);
-      logger.info("Receive msg: {}", triggerMsg);
+    for (int i = 0; i < 100; i++) {
+      new Thread(() -> {
+        ZContext context = new ZContext();
+        ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
+        subscriber.connect(String.format("tcp://localhost:%d", 50096));
+        subscriber.subscribe("blockTrigger");
+        byte[] message = subscriber.recv();
+        String triggerMsg = new String(message);
+        logger.info("Receive msg: {}", triggerMsg);
+        subscriber.close();
+        context.close();
+      }).start();
     }
   }
 
